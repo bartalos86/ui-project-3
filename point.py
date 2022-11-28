@@ -1,9 +1,13 @@
 import random
+import numpy as np
+
+colors = ["#ff0000", "#00ff00", "#0000ff", "#ff00ff"]
 
 class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+        self.color = random.choice(colors)
 
 
     def generate_offsets(self):
@@ -33,8 +37,13 @@ class Point:
         return str(self.x) + ":"+str(self.y)
 
     def get_x(self):
-        return self.x + self.x_offset
+        return self.x
 
     def get_y(self):
-        return self.y + self.y_offset
+        return self.y
+
+    def get_color(self):
+        return self.color
+    def set_color(self, color):
+        self.color = color
         
