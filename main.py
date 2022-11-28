@@ -49,23 +49,61 @@ for point in points:
 
 
 
-def create_clusters_centroid(k = 3):
-    centroids = {"x": [], "y": [], "color": []};
-    for i in range(k):
-        centroids["x"].append(random.randrange(-5000,5000))
-        centroids["y"].append(random.randrange(-5000,5000))
-        centroids["color"].append(colors[i])
+def create_clusters_centroid(k = 4, centroids = None):
+    if centroids == None:
+        centroids = {"x": [], "y": [], "color": []};
+        for i in range(k):
+            centroids["x"].append(random.randrange(-5000,5000))
+            centroids["y"].append(random.randrange(-5000,5000))
+            centroids["color"].append(colors[i])
+            print("pos: " + str(centroids["x"][i]) + ":" + str(centroids["y"][i]) + " "+ colors[i])
     
     for dp_index in range(len(points)):
         dindex = 0
         min_distance = 9999999
-        for cl_index in range(len(centroids["color"])):
-            distance = sqrt(pow(points_dict["x"][dp_index] - points_dict["y"][dp_index],2))
-
+        for cl_index in range(k):
+            distance = sqrt(pow(centroids["x"][cl_index] - points_dict["x"][dp_index],2) + pow(centroids["y"][cl_index] - points_dict["y"][dp_index],2))
             if min_distance > distance:
                 min_distance = distance
                 dindex = cl_index
+
         points_dict["color"][dp_index] = centroids["color"][dindex]
+    
+    return centroids
+
+
+def create_centroid(k = 4):
+    change_detected = True
+    centroids = create_clusters_centroid(k)
+    iteration = 0
+    while change_detected:
+        change_detected = False
+        for i in range(k):
+            centroid_color = centroids["color"][i]
+            cluster_points = {"xsum": 0, "ysum": 0, "count": 0}
+            for dp_index in range(len(points)):
+                if points_dict["color"][dp_index] == centroid_color:
+                    cluster_points["xsum"] += (points_dict["x"][dp_index])
+                    cluster_points["ysum"] += (points_dict["y"][dp_index])
+                    cluster_points["count"] = cluster_points["count"] +1
+            new_x = int(cluster_points["xsum"] / cluster_points["count"])
+            new_y = int(cluster_points["ysum"] / cluster_points["count"])
+
+            if centroids["x"][i] != new_x or centroids["y"][i] != new_y:
+                centroids["x"][i] = new_x
+                centroids["y"][i] = new_y
+                change_detected = True
+
+        if change_detected:
+                print("change detected: iteration " + str(iteration))
+                print(centroids)
+        iteration = iteration +1
+        centroids = create_clusters_centroid(k, centroids)
+
+
+
+
+
 
 def draw_data():
     plt.scatter(x=(points_dict["x"]), y=(points_dict["y"]), c=(points_dict["color"]))
@@ -79,7 +117,7 @@ def draw_data():
     plt.show()
 
 
-create_clusters_centroid()
+create_centroid()
 draw_data()
 
 
