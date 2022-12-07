@@ -36,8 +36,6 @@ class Point:
         self.x = self.x + self.x_offset
         self.y = self.y + self.y_offset
 
-        # if self.x < -5000 or self.x > 5000 or self.y < -5000 or self.y > 5000:
-        #     print(f"self.x: {self.x} self.y: {self.y}")
 
     def get_code(self):
         return str(self.x) + ":"+str(self.y)
