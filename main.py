@@ -2,17 +2,18 @@ from copy import deepcopy
 from math import sqrt
 import os
 import random
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 
 
 from point import Point
 
-CLUSTERS = 8
-STARTING_POINTS = 35
-OTHER_POINTS = 8000
-OFFSET = 250
-MAX_ITERATIONS = 500
+CLUSTERS = 20
+STARTING_POINTS = 20
+OTHER_POINTS = 4000
+OFFSET = 150
+MAX_ITERATIONS = 15000
 
 
 def generate_color():
@@ -24,7 +25,6 @@ def generate_color():
     return color
 
 generate_color()
-
 
 
 # colors = ["#ff0000", "#00ff00", "#0000ff", "#ff00ff"]
@@ -75,6 +75,24 @@ def filter_points_by_color(points_arr, color):
             matches.append(point)
 
     return matches
+
+def control_correctness(centers, points):
+    correct = True
+    for center in centers:
+        total_distance = 0
+        points_in_cluster = filter_points_by_color(points, center.get_color())
+        for point in points_in_cluster:
+            total_distance += sqrt(pow(center.get_x() - point.get_x(),2) + pow(center.get_y() - point.get_y(),2))
+
+        avg_distance = total_distance / len(points_in_cluster)
+        if avg_distance > 500:
+            print(f"Too big distance in cluster: {center.get_color()} - {avg_distance}")
+            correct = False
+
+    if(correct):
+        print("All clusters are correct!")
+    return correct
+        
 
 
 def create_clusters_centroid(k, points, centroids = None):
@@ -302,17 +320,31 @@ def draw_data(title, centers, points):
 
 def generate_graphs():
     print("Generating K-means centroid graph....")
+    start = time.time()
     centroids, points = create_centroid(CLUSTERS)
+    end = time.time()
+    control_correctness(centroids, points)
+    print(f"Elapsed time: {end - start}s")
+ 
     print("Drawing...")
     draw_data("K-means centroid", centers=centroids, points=points)
     print("Graph saved!")
     print("Generating K-means medoid graph....")
+    start = time.time()
     medoids, points = create_medoid(CLUSTERS)
+    end = time.time()
+    control_correctness(medoids, points)
+
+    print(f"Elapsed time: {end - start}s")
     print("Drawing...")
     draw_data("K-means medoid", centers=medoids, points=points)
     print("Graph saved!")
     print("Generating Divisive centroid graph....")
+    start = time.time()
     centroids, points = divisive_centroid(CLUSTERS)
+    end = time.time()
+    control_correctness(centroids, points)
+    print(f"Elapsed time: {end - start}s")
     print("Drawing...")
     draw_data("Divisive centroid", centers=centroids, points=points)
     print("Graph saved!")
